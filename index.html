@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Monitoring</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+  <style>
+    body {
+      /*padding-top: 50px;*/
+      padding-bottom: 20px;
+    }
+  </style>
+  <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    * {font-family: Arial, Helvetica, sans-serif;}
+    .off-screen{position:fixed;top:0px;}
+    .page-header {border:0px !important;}
+    .boxed{
+      /*width:960px;*/
+    }
+    .rounded {
+      border-radius: 14px 14px 14px 14px;
+    }
+    .header {
+      /*background-color: #FFFFAA;*/
+      /*background-color: #eee;*/
+      margin-bottom: 1em;
+    }
+    .withbg {
+      /*background-color: #eee;*/
+      margin-bottom: 1em;
+    }
+    .maincontainer {
+      background-color: #ffffff;
+      padding-top: 1em;
+      margin-top: 1em;
+      border-radius: 14px 14px 14px 14px;
+    }
+    .contentcontainer {
+      /*border-bottom: 1px solid gray;*/
+      /*background-color: #BBEBFF;*/
+      background-color: #eee; 
+    }
+    .footer {
+      /*border-top: 1px solid gray;*/
+      /*background-color: #AAFD8E;*/
+    }
+    .centered {
+      margin: 0px auto !important;
+      text-align: center;
+    }
+    acronym {
+      text-decoration: underline; //fix for chrome
+    }
+    body {background-image: url("htmlbg.gif");}
+  </style>
+
+  <!-- JQUERY -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+  <script>
+    window.jQuery || document.write('<script src="js/vendor/jquery-1.10.1.min.js"><\/script>');
+  </script>
+
+  <!-- JQUERY UI -->
+  <link href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" media="screen" />
+  <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+</head>
+
+
+<body>
+
+  <div class="boxed container maincontainer">
+    <div class="container rounded header">
+    <div class="page-header">
+      <h1>3.14Cam<small> nowa definicja bezpieczeństwa na dzień 21. pażdziernika 2013, godz 13<img width=0 height=0 alt=":" style=visibility:hidden /><sup>03</sup></h1>
+      <div class="pull-right"><span class=".glyphicon .glyphicon-camera">Photo</span></div>
+    </div>
+
+    </div>
+
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+            <![endif]-->
+            <div class="rounded navbar navbar-not_inverse navbar-fixed-top2" role="navigation">
+              <div class="container">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar">Menu</span>
+                  </button>
+                  <a class="navbar-brand active" href="/">O projekcie</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                  <ul class="nav navbar-nav">
+                    <li><a href="#webcam">Aktualny obraz</a></li>
+                    <li><a href="#history">Przeglądaj historię</a></li>
+                    <li><a href="#config">Konfiguracja</a></li>
+                    <li><a href="/:8081">Interfejs prog. Motoin</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="content">
+    <div class="jumbotron" style="display:block;">
+      <div class="container">
+        <h1>Witaj użytkowniku!</h1>
+        <p>Oto nasz projekt kamerki rejestrującej obraz <ul><li>na żądanie użytkownika</li><li>automatycznie przy wykryciu ruchu.</li></ul></p>
+        <p><a class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+      </div>
+    </div>
+    </div>
+
+    <div class="content">
+      <div class="container rounded withbg contentcontainer">
+        <h1>Aktualny obraz</h1>
+        <p><img id="lastpic" src="?lastsnap" /></p>
+        <div id="slider"></div>
+        <div>Odświeżaj co: <span id="info">1000</span> ms.</div>
+        <script>
+
+function handle() {
+$.ajax({url: window.location.href.replace(window.location.port,8080)+'0/action/snapshot',
+  complete: function(resp){
+    console.log(resp.length);
+$('#lastpic').attr('src','/?lastsnap&'+new Date());
+    //$('#lastpic').attr('src','/?lastsnap');
+    setTimeout(handle, $( "#slider" ).slider("value") || 1000);
+  }
+  });
+}
+
+handle();
+        </script>
+        <script type="text/javascript">
+        $(function() {
+          $( "#slider" ).slider({
+            slide: function(e) {
+                // console.log(e);
+                $("#info").text($( "#slider" ).slider("value"))
+            }
+            ,value: 1000
+            ,max: 10000
+            ,step: 50
+            ,min: 0
+            ,change: this.slide
+          });
+          });
+        </script>
+    </div>
+  </div>
+    <div class="content">
+      <div class="container rounded withbg contentcontainer">
+        <h1>Przeglądaj historię</h1>
+    </div>
+  </div>
+  <div class="content rounded withbg contentcontainer">
+    <h1>Konfiguracja</h1>
+
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">Konfiguracja serwera</a></li>
+        <li><a href="#tabs-2">Konfiguracja przechwytywania obrazu</a></li>
+        <li><a href="#tabs-3">Konfiguracja serwera zdalnego</a></li>
+      </ul>
+      
+      <div id="tabs-1">
+        <p>Konfiguracja serwera</p>
+      </div>
+      <div id="tabs-2">
+        <p>Konfiguracja przechwytywania obrazu</p>
+
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+          <label for="inputEmail1" class="col-lg-2 control-label">Ilość przechowywanych zdjęć</label>
+            <div class="col-lg-10">
+              <input type="email" class="form-control" id="inputEmail1" placeholder="domyślnie 10">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="inputPassword1" class="col-lg-2 control-label">Jakość zdjęć</label>
+            <div class="col-lg-10"> <select name="minbeds" id="quality">
+<option>bardzo słaba</option>
+<option>słaba</option>
+<option>średna</option>
+<option>dobra</option>
+<option>bardzo dobra</option>
+</select>
+<script>
+var select=$('#quality');
+var slider = $( "<div id='slider' style='width:200px'></div>" ).insertAfter( select ).slider({
+min: 1,
+max: $('#quality>option').size(),
+range: "min",
+value: select[ 0 ].selectedIndex + 1,
+slide: function( event, ui ) {
+select[ 0 ].selectedIndex = ui.value - 1;
+}
+});
+</script>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-offset-2 col-lg-10">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox"> Remember me
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-offset-2 col-lg-10">
+              <button type="submit" class="btn btn-default">Sign in</button>
+            </div>
+          </div>
+        </form>
+
+
+      </div>
+      <div id="tabs-3">
+        <p>Konfiguracja serwera zdalnego</p>
+        <p>Typ serwera: 
+        <input type=radio name=srvtype value=ftp /> ftp 
+        <input type=radio name=srvtype value=scp /> scp (or ssh)
+        </p>
+        <p>adres serwera (host lub IP): 
+        <input type=text name=ip placeholder="domyślnie localhost"/>
+        </p>
+      </div>
+      <div class="clear"></div>
+    </div>
+    <script>
+      $(function() {
+        $( "#tabs" ).tabs();
+      });
+    </script>
+
+  </div>
+  <div class="rounded withbg footer">
+    <footer>
+      <div class="row">
+        <div class=" col-lg-2">
+          <address>Politechnika Wrocławska<br/>ul. Janiszewskiego 11/17<br/>50-370 Wrocław, woj. dolnośląskie<br/>NIP: 896-000-58-51<br/>tel. 123456789</address>
+        </div>
+        <div class="col-lg-offset-6 col-lg-4">
+          <p><img src="http://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Copyleft.svg/50px-Copyleft.svg.png" alt="copyleft"/> PWr 2013</p>
+          <span style="font-family: arial;border: 1px solid black; background: black; font-size: 10px">
+            <span style="color: white;">zochniak&amp;nikipierowicz</span>
+            <span style="background: white">development</span>
+          </span>
+        </div>
+      </div>
+    </footer>
+  </div>   
+</div>
+
+
+
+<script>
+  $(document).ready(function() {
+// $('.navbar').alwaysOnScreen($('body'));
+
+//Set up tabs navigation in gallery
+$( "#tabs" ).tabs();
+var d={duration: 500};
+//Set up menu scripts
+$('.content').hide()
+$('.content').eq(0).show()
+
+$('.navbar a').each(function(i,e) {
+  $(e).unbind('click').bind('click',function(ev) {
+    ev.preventDefault();
+    $('.content').hide(d)
+    $('.content').eq(i).show(d);
+  });
+  console.log("binding",e,"to",$('.content').eq(i));
+})
+
+});
+</script>
+
+</body>
+</html>

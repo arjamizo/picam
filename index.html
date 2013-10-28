@@ -82,7 +82,10 @@
     <div class="container rounded header">
     <div class="page-header">
       <h1>3.14Cam<small> nowa definicja bezpieczeństwa na dzień 21. pażdziernika 2013, godz 13<img width=0 height=0 alt=":" style=visibility:hidden /><sup>03</sup></h1>
-      <div class="pull-right"><span class=".glyphicon .glyphicon-camera">Photo</span></div>
+      <div class="pull-right">
+      <span class=".glyphicon .glyphicon-camera">Photo</span>
+      <input type="checkbox" checked="checked">Aplikacja zbierająca zdjęcia (motion -n)</span>
+      <input type="checkbox" checked="">Server historii (wywolanie w tle - osobny watek pythona - cd /tmp/motion &amp;&amp; python -m SimpleHTTPServer 8082)</span></div>
     </div>
 
     </div>
@@ -135,7 +138,7 @@ $.ajax({url: window.location.href.replace(window.location.port,8080)+'0/action/s
     console.log(resp.length);
 $('#lastpic').attr('src','/?lastsnap&'+new Date());
     //$('#lastpic').attr('src','/?lastsnap');
-    setTimeout(handle, $( "#slider" ).slider("value") || 1000);
+    if ($( "#slider" ).slider("value")<5000) setTimeout(handle, $( "#slider" ).slider("value") || 1000);
   }
   });
 }
@@ -163,6 +166,18 @@ handle();
       <div class="container rounded withbg contentcontainer">
         <h1>Przeglądaj historię</h1>
     </div>
+    <script type="text/javascript">
+    function history() {
+$.ajax({url: window.location.href.replace(window.location.port,8082),
+  complete: function(resp){
+    console.log(resp);
+    setTimeout(history, $( "#slider" ).slider("value") || 1000);
+  }
+  });
+}
+
+history();
+</script>
   </div>
   <div class="content rounded withbg contentcontainer">
     <h1>Konfiguracja</h1>

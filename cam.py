@@ -31,6 +31,11 @@ class myHandler(SimpleHTTPRequestHandler):
     ret+="system.os.execute(killall motion);"
     print ret
     return ret+"OK";
+  def cleanHistory(self): 
+    ret=""
+    ret+="executed rm /tmp/motion/*"
+    print ret
+    return ret
   def do_GET(self): 
     if len(self.path.split('?',1))>1:
       arg=self.path.split('?',1)[1]

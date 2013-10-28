@@ -1,0 +1,19 @@
+#!/bin/sh
+fle='.raspipcache'
+if [ ! -e "$fle" ]
+then
+    ip=156.17.41.16
+    echo plik nie istnieje. Podaj adres IP raspberry [$ip]
+    read tmpip
+    if [ "$tmpip" != "" ] 
+    then
+        ip=$tmpip
+    fi
+    echo zapisywanie do pliku $fle wartosci $ip
+    echo $ip > $fle
+    echo 'tworzenie katalogu ~/picam na ' $pi
+    ssh pi@$ip 'mkdir -p ~/picam'
+fi
+ip=`cat $fle`
+echo wrzucanie do $ip
+( scp * pi@$ip:~/picam && echo udalo sie wyslac pliki ) || echo WYSTAPIL BLAD

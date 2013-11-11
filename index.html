@@ -171,7 +171,37 @@ handle();
 $.ajax({url: window.location.href.replace(window.location.port,8082),
   complete: function(resp){
     console.log(resp);
-    setTimeout(history, $( "#slider" ).slider("value") || 1000);
+    //setTimeout(history, $( "#slider" ).slider("value") || 1000);
+    $.ajax({
+        url: "/motion",
+        beforeSend: function( xhr ) {
+        xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+        }
+        })
+        .done(function( data ) {
+
+        $('h1:contains(Przeglądaj historię)').parent().append("<div>"+""+"</div>");
+
+        var links=$(jQuery.parseHTML(data)).find("a");
+        for (var i in links) {
+        //console.log();
+        //if links[i] jQuery.text()? zaweira streing.match Regexp Javascript docs >>
+        var x = links[i].textContent.match(/.*.jpg/);
+        //x = links[i].innerHTML;
+        //x.match(/.*jpg/);
+
+        if(x)
+            $('h1:contains(Przeglądaj historię)').parent().append("<div>"+"<img src = 'motion/"+x+"' />"+"</div>");
+
+        }
+
+        if ( console && console.log ) {
+        console.log( "Sample of data:", data.slice( 0, 100 ) );
+        }
+
+        });
+
+        //$('h1:contains(Przeglądaj historię)').parent().append("<div>zdjecie</div>");
   }
   });
 }

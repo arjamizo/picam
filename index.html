@@ -133,14 +133,19 @@
         <script>
 
 function handle() {
-$.ajax({url: window.location.href.replace(window.location.port,8080)+'0/action/snapshot',
-  complete: function(resp){
-    console.log(resp.length);
-$('#lastpic').attr('src','/?lastsnap&'+new Date());
-    //$('#lastpic').attr('src','/?lastsnap');
-    if ($( "#slider" ).slider("value")<5000) setTimeout(handle, $( "#slider" ).slider("value") || 1000);
-  }
-  });
+var isActualPictureVisible=$( "#slider" ).closest("div.content").is(':visible');
+	if(isActualPictureVisible)
+	$.ajax({url: window.location.href.replace(window.location.port,8080)+'0/action/snapshot',
+	  complete: function(resp){
+		console.log(resp.length);
+		$('#lastpic').attr('src','/?lastsnap&'+new Date());
+		//$('#lastpic').attr('src','/?lastsnap');
+		
+		if ($( "#slider" ).slider("value")<5000) setTimeout(handle, $( "#slider" ).slider("value") || 1000);
+	  }
+	});
+	else 
+		setTimeout(handle, $( "#slider" ).slider("value") || 1000);
 }
 
 handle();
@@ -162,52 +167,92 @@ handle();
         </script>
     </div>
   </div>
-    <div class="content">
+    <div class="content" id="history_div">
       <div class="container rounded withbg contentcontainer">
-        <h1>Przeglądaj historię</h1>
-    </div>
-    <script type="text/javascript">
-    function history() {
-$.ajax({url: window.location.href.replace(window.location.port,8082),
-  complete: function(resp){
-    console.log(resp);
-    //setTimeout(history, $( "#slider" ).slider("value") || 1000);
-    $.ajax({
-        url: "/motion",
-        beforeSend: function( xhr ) {
-        xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
-        }
-        })
-        .done(function( data ) {
-
-        $('h1:contains(Przeglądaj historię)').parent().append("<div>"+""+"</div>");
-
-        var links=$(jQuery.parseHTML(data)).find("a");
-        for (var i in links) {
-        //console.log();
-        //if links[i] jQuery.text()? zaweira streing.match Regexp Javascript docs >>
-        var x = links[i].textContent.match(/.*.jpg/);
-        //x = links[i].innerHTML;
-        //x.match(/.*jpg/);
-
-        if(x)
-            $('h1:contains(Przeglądaj historię)').parent().append("<div>"+"<img src = 'motion/"+x+"' />"+"</div>");
-
-        }
-
-        if ( console && console.log ) {
-        console.log( "Sample of data:", data.slice( 0, 100 ) );
-        }
-
-        });
-
-        //$('h1:contains(Przeglądaj historię)').parent().append("<div>zdjecie</div>");
-  }
-  });
+		<button id="refreshHistory" class="btn">Odswież historię</button>
+		<select id="log" multiple="multiple" style="width:300px;height:150px;"></select>
+		<select id="historySelect" multiple="multiple" style="width:300px;height:150px;"></select>
+        <div>
+		<h1>Przeglądaj historię</h1>
+		</div>
+	  </div>
+	  <div>
+	  </div>
+<script type="text/javascript">
+$(function(){
+	$("#refreshHistory").bind('click',history);
+})
+var historyCache=[];
+function log(str) {
+	$("#log").append("<option>"+str+"</option>");
 }
+function history() {
+		//setTimeout(history, $( "#slider" ).slider("value") || 1000);
+		//if($( "#slider" ).slider("value")>5000) 
+		{
+		$.ajax({
+			url: "/motion",
+			beforeSend: function( xhr ) {
+                xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+			}
+			})
+			.done(function( data ) {
+                $("#historyImages").remove()
+                if(!$('#historyImages').size()) $('h1:contains(Przeglądaj historię)').append("<div id='historyImages'></div>");
+                var links=$(jQuery.parseHTML(data)).find("a").toArray();
+				var oldLen=historyCache.length;
+				historyCache=[];
+				$("#historySelect").children().remove();
+                for (var i in links) {
+                	//console.log();
+                	//if links[i] jQuery.text()? zaweira streing.match Regexp Javascript docs >>
+                	//console.log(links[i]);
+                	var x = links[i].textContent.match(/.*.jpg/);
+                	//x = links[i].innerHTML;
+                	//x.match(/.*jpg/);
+                	if(x) {
+						historyCache.push(x);
+						$("#historySelect").append("<option>"+x+"</option>");
+					}
+                }
+				var diff=(historyCache.length-oldLen);
+				if(diff<0) diff=historyCache.length;
+				log("Znaleziono "+diff+" nowych wpisow w historii.")
+                historyDate();
+                if ( console && console.log ) {
+                	console.log( "Sample of data:", data.slice( 0, 100 ) );
+                }
+			});
 
+			//$('h1:contains(Przeglądaj historię)').parent().append("<div>zdjecie</div>");
+		}
+	}
+
+function historyDate() {
+	if($('#historyDate').size()) $('#historyDate').remove();
+	$('h1:contains(Przeglądaj historię)').parent().append("<div id='historyDate'></div>");
+	$("#historyDate").append("<img id='historyImg'/>");
+	$("#historyDate").append("<div id='historySlider'></div>");
+	$("#historyDate").append("<div id='historyDesc'></div>");
+	console.log("len=",historyCache.length)
+	$("#historySlider").slider({
+//		range: "max",
+		min: 0,
+		max: historyCache.length-1,
+//		value: historyCache.length-1,
+		slide: function( event, ui ) {
+			$( "#historyImg" ).attr( 'src', '/motion/'+historyCache[ui.value] );
+			$( "#historyDesc" ).text( historyCache[ui.value] );
+		}
+	});
+}
 history();
-</script>
+$(function(){
+	$( "#history_div select" ).resizable();
+})
+
+
+	</script>
   </div>
   <div class="content rounded withbg contentcontainer">
     <h1>Konfiguracja</h1>
@@ -221,6 +266,22 @@ history();
       
       <div id="tabs-1">
         <p>Konfiguracja serwera</p>
+		<div>
+		<form>
+			<button name="cmd" value="cleanHistory" class="btn">Usuń całą historię</button>
+		</form>
+		<script type="text/javascript">
+		$("[value=cleanHistory]").unbind('click').bind('click',function(ev){
+		//    console.log("unbinded"+$(ev.target).unbind('click'));
+			$.ajax({
+				url: $(ev.target).closest("form").attr('action') || ""
+				,data: {"cmd": "cleanHistory"}
+			}).done(function(resp){console.log(resp);})
+			ev.preventDefault();
+			return false;
+		})
+		</script>
+		</div>
       </div>
       <div id="tabs-2">
         <p>Konfiguracja przechwytywania obrazu</p>

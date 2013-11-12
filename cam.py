@@ -1,4 +1,5 @@
 import sys
+import os
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
@@ -33,7 +34,9 @@ class myHandler(SimpleHTTPRequestHandler):
     return ret+"OK";
   def cleanHistory(self): 
     ret=""
-    ret+="executed rm /tmp/motion/*"
+    ret+="executed rm /tmp/motion/*;"
+    ret+=str(os.system("rm -rf /tmp/motion"))
+    ret+=str(os.system("mkdir /tmp/motion"))
     print ret
     return ret
   def do_GET(self): 
@@ -49,6 +52,7 @@ class myHandler(SimpleHTTPRequestHandler):
         fnc=({ #http://stackoverflow.com/a/60211/781312
         'serverStop': self.serverStop
         ,'serverStart': self.serverStart
+        ,'cleanHistory': self.cleanHistory
         }[cmd[1]])
         ret+=fnc()
         self.serve_content(ret)
